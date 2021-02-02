@@ -2,7 +2,7 @@ package arrayqueue;
 
 import java.util.Scanner;
 
-public class ArrayQueue {
+public class CircleArrayQueue {
     // 队列最大容量
     private int maxSize;
     // 队列头数据指针
@@ -17,7 +17,7 @@ public class ArrayQueue {
      *
      * @param maxSize
      */
-    public ArrayQueue(int maxSize) {
+    public CircleArrayQueue(int maxSize) {
         // 设置队列最大容量值
         this.maxSize = maxSize;
         // 初始化数组
@@ -43,8 +43,8 @@ public class ArrayQueue {
      * @return
      */
     public boolean isFull() {
-        // 因为rear是尾数据的后一个位置，所以rear-1=maxSize-1
-        return rear == maxSize;
+        // 用rear的后一个位置是否为front来判断队列还能否加入数据
+        return front == (rear + 1) % maxSize;
     }
 
     /**
@@ -56,8 +56,9 @@ public class ArrayQueue {
         if (isFull()) {
             throw new RuntimeException("队列已满，无法继续入队");
         }
-        // rear是当前尾数据的后一个位置，所以需要先将当前位置填入再加1
-        array[rear++] = m;
+        // rear是当前尾数据的后一个位置，所以需要先填充当前rear位置，再rear=(rear+1)%MaxSize
+        array[rear] = m;
+        rear = (rear + 1) % maxSize;
         System.out.println(m + "入队");
     }
 
@@ -68,8 +69,9 @@ public class ArrayQueue {
         if (isEmpty()) {
             throw new RuntimeException("队列为空，无法继续出队");
         }
-        // front是当前头数据位置，所以可以直接将当前位置取出再加1
-        System.out.println(array[front++] + "出队");
+        // front是当前头数据位置，所以先取出当前front位置，front=(front+1)%MaxSize
+        System.out.println(array[front] + "出队");
+        front = (front + 1) % maxSize;
     }
 
     /**
@@ -90,9 +92,19 @@ public class ArrayQueue {
             System.out.println("队列为空");
             return;
         }
-        for (int i = front; i < rear; i++) {
-            System.out.println("队列内容" + "[" + i + "]：" + array[i]);
+        for (int i = front; i < front + size(); i++) {
+            System.out.println("队列内容" + "[" + i % maxSize + "]：" + array[i % maxSize]);
         }
+    }
+
+    /**
+     * 有效个数
+     *
+     * @return
+     */
+    public int size() {
+        // 队列满的最大有效个数为MaxSize-1(因为占了rear后一个位置用来判断，所以无法存值)
+        return (rear + maxSize - front) % maxSize;
     }
 
     /**
@@ -101,7 +113,7 @@ public class ArrayQueue {
      * @param args
      */
     public static void main(String[] args) {
-        ArrayQueue arrayQueue = new ArrayQueue(5);
+        CircleArrayQueue arrayQueue = new CircleArrayQueue(5);
         System.out.println("欢迎使用队列：请操作");
         System.out.println("s(show)展示队列");
         System.out.println("l(lookHead)查队列头数据");
@@ -146,6 +158,5 @@ public class ArrayQueue {
                     break;
             }
         }
-
     }
 }

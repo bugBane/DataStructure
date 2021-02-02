@@ -17,7 +17,7 @@
         3
         2
         1
-        0           <- front=-1 |   <- rear=-1
+        0           <- front=0 |   <- rear=0
             Queue
     入队：
         MaxSize-1
@@ -25,7 +25,7 @@
         3           <- rear=3
         2
         1
-        0           <- front=-1
+        0           <- front=0
             Queue
     出队：
         MaxSize-1
@@ -35,3 +35,26 @@
         1
         0
             Queue
+    队列为空：
+        MaxSize-1
+        ...
+        3           <- rear=3  |   <- front=3
+        2
+        1
+        0
+            Queue
+
+代码实现：ArrayQueue
+
+思考：ArrayQueue方式实现队列，使用之后的位置虽然已经不显示但是实际还在占用队列，导致队列只能使用一次而且还会浪费内存。怎样让数组进行可持续使用？
+    -> 将数组进行环形
+
+改进：
+2.环形数组
+环形数组的难点在于如何可以将front和rear循环起来使用，我们可以借助操作运算符"%"(取模:余数)来进行判断。
+可以用rear的后一个位置是否为front来判断队列还能否加入数据，队列满的最大有效个数为MaxSize-1(因为占了rear后一个位置用来判断，所以无法存值)
+    队列为空：front == rear
+    队列已满：front == (rear+1)%MaxSize
+    入队：判断队列已满，先填充当前rear位置，rear=(rear+1)%MaxSize
+    出队：判断队列为空，先取出当前front位置，front=(front+1)%MaxSize
+    有效个数：(rear+MaxSize-front)%MaxSize
