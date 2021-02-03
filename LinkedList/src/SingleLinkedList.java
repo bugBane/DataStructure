@@ -12,10 +12,6 @@ public class SingleLinkedList {
         return head;
     }
 
-    public void setHead(HeroNode head) {
-        this.head = head;
-    }
-
     // 1.不考虑当前节点编号
     // 找到当前链表的最后一个节点
     // 将这个节点的next指向新的节点
@@ -227,11 +223,15 @@ public class SingleLinkedList {
         HeroNode mergeHead = new HeroNode();
         HeroNode tempHead1 = head1.next;
         HeroNode tempHead2 = head2.next;
+        // 记录新链表的末尾位置，这样就不用来回循环去增加到末尾了(add需要每次都遍历一次，在此时没有必要因为是有序的)
         HeroNode next = mergeHead;
         while (tempHead1 != null && tempHead2 != null) {
             if (tempHead1.rank <= tempHead2.rank) {
+                // 将mergeHead指向要插入的节点，此时节点插入
                 next.next = tempHead1;
+                // 推动next往后移一个节点
                 next = tempHead1;
+                // 遍历head1的中间量tempHead1往后移一个节点
                 tempHead1 = tempHead1.next;
             } else {
                 next.next = tempHead2;
@@ -250,7 +250,7 @@ public class SingleLinkedList {
             next = tempHead2;
             tempHead2 = tempHead2.next;
         }
-        //将链表头指向新的链表的下一个
+        //将链表头指向新的链表的下一个(替换新链表的头部位置)
         head1.next = mergeHead.next;
     }
 
@@ -265,13 +265,6 @@ public class SingleLinkedList {
         HeroNode heroNode3 = new HeroNode("吴用", "智多星", 3);
         HeroNode heroNode4 = new HeroNode("公孙胜", "入云龙", 4);
 //        HeroNode heroNode5 = new HeroNode("吴用", "智多星", 3);
-
-//        SingleLinkedList singleLinkedList = new SingleLinkedList();
-//        singleLinkedList.add(heroNode4);
-//        singleLinkedList.add(heroNode2);
-//        singleLinkedList.add(heroNode1);
-//        singleLinkedList.add(heroNode3);
-//        singleLinkedList.show();
         System.out.println("-----------------------");
         SingleLinkedList singleLinkedList2 = new SingleLinkedList();
         singleLinkedList2.add2(heroNode4);

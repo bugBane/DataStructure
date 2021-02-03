@@ -19,5 +19,100 @@ head    150       110   a2      180
     链表分带头节点的链表和没有头节点的链表，根据实际需求来确定。
 
 思路：
-1.单链表实现，先简单的将添加的好汉数据加入链表尾部。
-2.根据排名将英雄插入到指定位置（如果有这个排名将添加失败并且给出错误提示）
+1.单链表实现，先简单的将添加的好汉数据加入链表尾部。实现单链表的增删改查：
+    根据排名将英雄插入到指定位置（如果有这个排名将添加失败并且给出错误提示）
+    增(插入最后)：使用中间量temp=head(要增加节点位置的前一个节点)，遍历单链表while(temp.next != null){temp = temp.next}，遍历完之后向temp的next插入。
+        插入最后：temp.next=newHeroNode;
+    增(插入指定位置)：使用中间量temp(要插入节点位置的前一个节点)，遍历单链表while(temp.next != null)如果找到要插入的位置进行插入，否则temp = temp.next。
+        找到位置指定插入：newHeroNode.next=temp.next;temp.next=newHeroNode;
+    删：判断head.next为空，使用中间量temp=head(要删除节点位置的前一个节点)，遍历单链表while(temp.next != null)，根据指定信息找到要删除位置的节点，跳出循环，否则temp = temp.next。
+        找到位置删除：temp.next=temp.next.next
+    修：判断head.next为空，使用中间量temp=head.next(当前要修改节点位置)，遍历单链表while(temp != null)，根据指定信息找到要修改位置的节点，跳出循环，否则temp = temp.next。
+        找到位置修改：temp.name=newHeroNode.name;temp.nickName=newHeroNode.nickName;
+    查：判断head.next为空，使用中间量temp=head.next(当前要查找节点位置)，遍历单链表while(temp != null){temp = temp.next;打印查询temp;}。
+扩展：
+    获取有效个数：其实就相当于查询遍历，在查询打印位置改为计数length++，遍历完后返回length值
+        定义一个计数变量，使用中间量temp=head.next(当前要查找节点位置)，遍历单链表while(temp != null){temp = temp.next;length++;}return length;
+    获取倒数第k个节点：从获取有效个数方法里返回节点个数，然后用for循环遍历。
+        判断length==0||length<k||k<=0，使用中间量temp=head.next(当前要查找节点位置)，for(int i=0;i<length-k;i++){temp=temp.next},之后返回temp。
+    链表反转：使用一个新的newHeroNode来临时存放遍历节点，然后再用head.next=newHeroNode.next。
+        难点在于:
+            1.怎么把遍历节点切割下来放出新链表形成倒序：原链表的遍历节点使用增(插入指定位置)来放入新链表，只需要每次插入新链表头节点，遍历完成之后新链表就是原链表倒序。
+            2.遍历原head节点时将遍历的节点切割之后怎样继续往后遍历原链表：先使用next记录temp.next，将temp插入新链表，然后temp=next，继续往后循环。
+                // 辅助指针
+                HeroNode headTemp = head.next;
+                // 指向当前节点headTemp的下一个节点
+                HeroNode next = null;
+                HeroNode reversal = new HeroNode();
+                while (headTemp != null) {
+                    // 暂时存放当前节点的下一个节点
+                    next = headTemp.next;
+                    // 将headTemp增加到新链表的最前端（插入）
+                    headTemp.next = reversal.next;
+                    reversal.next = headTemp;
+                    // 让headTemp后移
+                    headTemp = next;
+                }
+                // 将head.next指向reversal.next,实现链表的反转
+                head.next = reversal.next;
+    倒序打印：
+        可以有两种方式实现：
+            1.先反转后遍历打印：不推荐，会破坏原来链表结构，而且如果节点很多会浪费时间。
+            2.使用栈stack数据结构来实现：栈特征时先进后出
+    两个有序链表合并为一个有序链表：解体思路和链表反转类似(不同之处在于有序所以不用切割节点那么原链表遍历就不会断，所以就不用使用next作为中间量temp.next)
+        难点在于：
+            1.怎么把两个链表连在一起：可以使用新链表，循环遍历两个链表往新链表上增加，最后再用老链表
+            2.两个有序转为一个有序：遍历的同时判断两个链表每个节点大小，只要这两个链表的节点不是null，谁小谁往先链表末尾添加。
+            3.最后遍历完head1或head2就停止遍历可能会留下没有加入新链表的节点(head1!=null&&head2!=null)：将原来两个链表按照各自中间量继续循环，加入到新链表。
+                HeroNode mergeHead = new HeroNode();
+                HeroNode tempHead1 = head1.next;
+                HeroNode tempHead2 = head2.next;
+                // 记录新链表的末尾位置，这样就不用来回循环去增加到末尾了(add需要每次都遍历一次，在此时没有必要因为是有序的)
+                HeroNode next = mergeHead;
+                while (tempHead1 != null && tempHead2 != null) {
+                    if (tempHead1.rank <= tempHead2.rank) {
+                        // 将mergeHead指向要插入的节点，此时节点插入
+                        next.next = tempHead1;
+                        // 推动next往后移一个节点
+                        next = tempHead1;
+                        // 遍历head1的中间量tempHead1往后移一个节点
+                        tempHead1 = tempHead1.next;
+                    } else {
+                        next.next = tempHead2;
+                        next = tempHead2;
+                        tempHead1 = tempHead2.next;
+                    }
+                }
+                //将原始表剩余的节点放到新链表上
+                while (null != tempHead1) {
+                    next.next = tempHead1;
+                    next = tempHead1;
+                    tempHead1 = tempHead1.next;
+                }
+                while (null != tempHead2) {
+                    next.next = tempHead2;
+                    next = tempHead2;
+                    tempHead2 = tempHead2.next;
+                }
+                //将链表头指向新的链表的下一个(替换新链表的头部位置)
+                head1.next = mergeHead.next;
+2.双向链表：双向链表增删改查：
+    增(插入最后)：与单链表思路无异，只不过插入最后代码变化。
+        插入最后：temp.next=newHeroNode;newHeroNode.prev=temp;
+    增(插入指定位置)：与单链表思路无异，只不过插入指定位置代码变化。另外需要额外判断节点是否插入末尾，因为末尾为null，newHeroNode.next.prev会空指针异常。
+        找到位置指定插入：newHeroNode.next=temp.next;temp.next=newHeroNode;newHeroNode.prev=temp;if (heroNode.next != null) {heroNode.next.prev = heroNode;}
+    删：与单链表思路有一点区别，双向链表可以节点自删，所以中间量temp=head.next，temp就是要删除节点。另外需要额外判断删除节点是否末尾，因为末尾为null，temp.next.prev会空指针异常。
+        找到位置删除：temp.prev.next=temp.next;if (temp.next != null ) {temp.next.prev=temp.prev;}
+    修：与单链表思路无异，不动节点位置代码不需要变化。
+        找到位置修改：temp.name=newHeroNode.name;temp.nickName=newHeroNode.nickName;
+    查：与单链表思路无异，不动节点位置代码不需要变化。
+
+算法扩展问题：约瑟夫问题(丢手帕问题)
+Josephu问题为：设编号1，2，3，...，n个人围坐一圈，约定编号为k(1<=k<=n)的人从1开始报数，数到m的那个人出列，它的下一位又从1开始报数，
+数到m的那个人有出列，依此类推，直到所有人出列为止，由此产生一个出队编号的序列。
+提示：用一个不带头节点的循环链表来处理Josephu问题：
+先构成一个带有n个节点单循环列表，然后由k节点起从1开始计数，计数到m时，对应节点从链表删除，然后再从被删除节点的下一个节点从1开始计数，
+直到最后一个节点从链表中删除算法结束。
+    ->单循环链表
+
+单循环链表与单链表相比没有头部head，但是会有一个first来标记。
