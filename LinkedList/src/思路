@@ -116,3 +116,36 @@ Josephu问题为：设编号1，2，3，...，n个人围坐一圈，约定编号
     ->单循环链表
 
 单循环链表与单链表相比没有头部head，但是会有一个first来标记。
+    增：单链表变成循环链表在添加的时候就需要中间量先记录单循环链表的尾节点，然后中间量next插入新节点，新节点再连上first，最后中间量指向新节点完成后移。
+    查：与单链表思路无异，但是判断条件为temp.next!=first。
+    约瑟夫：
+        难点在于：
+            1.如何给单循环链表定位：移动first和tail startNo-1个位置
+            2.如何循环让m个人出列：和startNo定位一样，first和tail移动m-1个位置，然后让first往后移动一个位置，重新让tail指向first。
+                单链表删除节点需要借助该节点的上一个节点，无法自删，因为每次都删除first，所以定位到tail就可以删除
+             // 指向链表最后一个节点，用来删除节点时
+            BoyNode tail = first;
+            while (tail.getNext() != first) {
+                tail = tail.getNext();
+            }
+            // 按照初始位置对first进行移动(重定位)，方便后面移动，tail同理
+            for (int i = 1; i < startNo; i++) {
+                first = first.getNext();
+                tail = tail.getNext();
+            }
+            // 判断链表是否只有一个节点
+            while (tail != first) {
+                // 报数移动countNum-1次
+                for (int i = 1; i < countNum; i++) {
+                    first = first.getNext();
+                    tail = tail.getNext();
+                }
+                // 此时的first就是要删除的节点
+                System.out.println(first + "出圈");
+                // 删除节点
+                first = first.getNext();
+                // 完成闭环
+                tail.setNext(first);
+
+            }
+            System.out.println(tail + "出圈");
