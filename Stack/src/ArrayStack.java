@@ -40,19 +40,21 @@ public class ArrayStack {
     }
 
     // 弹栈
-    public void pop() {
+    public int pop() {
         if (isEmpty()) {
             throw new RuntimeException("栈为空，无法弹出");
         }
-        System.out.println(array[top--] + "出栈");
+        System.out.println(array[top] + "出栈");
+        return array[top--];
     }
 
     // 查栈顶
-    public void getTop() {
+    public int getTop() {
         if (isEmpty()) {
             throw new RuntimeException("栈为空，无法查栈顶");
         }
         System.out.println(array[top]);
+        return array[top];
     }
 
     // 展示栈数据
