@@ -1,0 +1,56 @@
+查找算法：
+    无序数组查找：
+        顺序查找：从头到尾遍历一遍，遍历过程中判断元素是否与value相等
+    有序数组查找：
+        二分/折半查找：初始left=0，right=arr.length-1
+            1.判断left<=right且value>=arr[0]且value<=arr[length-1],否则返回-1；
+            2.取数组mid值，如果value>arr[mid]，向右递归(arr,mid+1,right)，如果value<arr[mid]，向左递归(arr,left,mid-1)；
+            3.如果value==arr[mid]，返回mid
+            优化：如何取出数组中与value值相等所有的索引?
+            1.判断left<=right且value>=arr[0]且value<=arr[length-1]，否则返回new ArrayList<>;
+            2.取数组mid值，如果value>arr[mid]，向右递归(arr,mid+1,right)，如果value<arr[mid]，向左递归(arr,left,mid-1)；
+            3.定义一个集合indexList和中间变量temp:
+                temp=mid—1(向左移),while(temp>0&&arr[temp]==value){indexList.add(temp--);}
+                if(value==arr[mid]){indexList.add(mid);}
+                temp=mid+1,while(temp<arr.length&&arr[temp]==value){indexList.add(temp++);}
+                返回indexList
+        插值查找：
+            原理：插值查找类似于二分查找，不同的是查找每次从自适应mid处开始查找。
+                折半查找mid：mid=(left+right)/2; => mid=left+(right-left)*(1/2)
+                插值查找mid：mid=left+(right-left)*((value-arr[left])/(arr[right]-arr[left]))
+            步骤：初始left=0，right=arr.length-1
+                1.判断left<=right且value>=arr[0]且value<=arr[length-1],否则返回-1；！！！
+                2.取数组mid值，如果value>arr[mid]，向右递归(arr,mid+1,right)，如果value<arr[mid]，向左递归(arr,left,mid-1)；
+                3.如果value==arr[mid]，返回mid
+            注意：
+                对于数据量较大，关键字分布比较均匀的查找表来说，插值查找速度较快。如果不均匀，该方法不一定比折半查找要好。
+        斐波那契查找：
+            原理：类似于二分查找，通过黄金分割(0.618)原理切割数组进行查找。
+                折半查找mid：mid=(left+right)/2; => mid=left+(right-left)*(1/2)
+                斐波那契mid：mid=left+fibArr[k -1]-1;  //fibArr为斐波那契数组
+            步骤：初始left=0，right=arr.length-1
+                1.判断left<=right且value>=arr[0]且value<=arr[length-1],否则返回-1；！！！
+                2.将原数组扩展为斐波那契数组长度的数组，填充过程中缺少的数用arr[arr.length-1]来填充
+                3.while判断，用mid来查找(黄金切割)
+                while (left <= right) {
+                    int mid = left + fibArr[k - 1] - 1;
+                    // 全部元素= 前+后 即 fibArr[k] = fibArr[k-1] + fibArr[k-2]
+                    if (value < temp[mid]) {
+                        // 小于那么需要向前查找，先排除mid：right = mid-1
+                        right = mid - 1;
+                        // 然后左移fibArr[k-1]=fibArr[k-2]+fibArr[k-3]
+                        k--;
+                    } else if (value > temp[mid]) {
+                        //大于那么需要向后查找，先排除mid：left = mid+1
+                        left = mid + 1;
+                        // 然后右移fibArr[k-2]=fibArr[k-3]+fibArr[k-4]
+                        k -= 2;
+                    } else {
+                        // 因为扩充过所以要对mid进行判断
+                        if (mid <= arr.length - 1) {
+                            return mid;
+                        } else {
+                            return arr.length - 1;
+                        }
+                    }
+                }
