@@ -1,3 +1,5 @@
+import java.util.Stack;
+
 public class ThreadedBinaryTree {
     private ThreadedTreeNode root;
     // 中序遍历尾节点，相当于约瑟夫问题的tail,协助线索化二叉树,默认为null
@@ -61,6 +63,73 @@ public class ThreadedBinaryTree {
         }
     }
 
+    // 非递归(但也是栈思想)中序遍历 左父右
+    public void infixOrder(ThreadedTreeNode threadedTreeNode) {
+        if (threadedTreeNode == null) {
+            return;
+        }
+        Stack<ThreadedTreeNode> stack = new Stack<>();
+        stack.push(threadedTreeNode);
+        // 如果栈不为空
+        while (!stack.isEmpty()) {
+            // 找到threadedTreeNode节点的左叶子节点
+            while (stack.peek().getLeft() != null) {
+                // 将左叶子节点压入栈中
+                stack.push(stack.peek().getLeft());
+            }
+            // 打印左叶子节点和右叶子节点
+            System.out.println(stack.pop());
+            // 如果栈不为空
+            while (!stack.isEmpty()) {
+                // 中间量父节点
+                threadedTreeNode = stack.peek();
+                // 打印父节点
+                System.out.println(stack.pop());
+                // 如果父节点有右子节点
+                if (threadedTreeNode.getRight() != null) {
+                    // 压入右子节点
+                    stack.push(threadedTreeNode.getRight());
+                    break;
+                }
+            }
+
+        }
+    }
+
+    // 非递归(但也是栈思想)先序遍历 父左右
+    public void prevOrder(ThreadedTreeNode threadedTreeNode) {
+        if (threadedTreeNode == null) {
+            return;
+        }
+        Stack<ThreadedTreeNode> stack = new Stack<>();
+        stack.push(threadedTreeNode);
+        // 如果栈不为空
+        while (!stack.isEmpty()) {
+            // 找到threadedTreeNode节点的左叶子节点
+            while (stack.peek().getLeft() != null) {
+                // // 打印父节点
+                System.out.println(stack.peek());
+                // 将左叶子节点压入栈中
+                stack.push(stack.peek().getLeft());
+            }
+            // 打印左叶子节点和右叶子节点
+            System.out.println(stack.pop());
+            // 如果栈不为空
+            while (!stack.isEmpty()) {
+                // 中间量父节点
+                threadedTreeNode = stack.peek();
+                stack.pop();
+                // 如果父节点有右子节点
+                if (threadedTreeNode.getRight() != null) {
+                    // 压入右子节点
+                    stack.push(threadedTreeNode.getRight());
+                    break;
+                }
+            }
+
+        }
+    }
+
     public static void main(String[] args) {
         ThreadedTreeNode treeNode1 = new ThreadedTreeNode(1, "宋江");
         ThreadedTreeNode treeNode2 = new ThreadedTreeNode(2, "卢俊义");
@@ -80,8 +149,16 @@ public class ThreadedBinaryTree {
         treeNode3.setRight(treeNode7);
 
         // 中序遍历：4 2 5 1 6 3 7
-        binaryTree.threadedNodes(treeNode1);
-        binaryTree.threadedOrder(treeNode1);
+        // 线索化二叉树
+//        binaryTree.threadedNodes(treeNode1);
+        // 遍历线索二叉树
+//        binaryTree.threadedOrder(treeNode1);
+        System.out.println("--------------------");
+        // 使用非递归中序遍历
+        binaryTree.infixOrder(treeNode1);
+        // 使用非递归前序遍历有问题
+//        binaryTree.prevOrder(treeNode1);
+
     }
 
 }
