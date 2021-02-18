@@ -3,15 +3,16 @@ import java.util.*;
 public class HuffmanCode {
     public static void main(String[] args) {
         String str = "i like like like java do you like a java";
-        byte[] zipArr = zip(str);
+        byte[] zipArr = zip(str.getBytes());
         System.out.println(Arrays.toString(zipArr));
-        System.out.println(unZip(zipArr, huffmanCodeTable));
+        byte[] bytes = unZip(zipArr, huffmanCodeTable);
+        System.out.println(new String(bytes));
     }
 
     // 压缩
-    private static byte[] zip(String str) {
+    public static byte[] zip(byte[] bytes) {
         // 创建赫夫曼集合
-        List<HuffmanCodeNode> huffmanList = transferHuffmanList(str);
+        List<HuffmanCodeNode> huffmanList = transferHuffmanList(bytes);
         // 将集合转换为赫夫曼树
         HuffmanCodeNode huffmanTree = createHuffmanTree(huffmanList);
         // 先序遍历赫夫曼树
@@ -21,27 +22,31 @@ public class HuffmanCode {
         // 打印赫夫曼编码表
 //        System.out.println(huffmanCodeTable);
         // 根据赫夫曼编码压缩字符串
-        return zipArr(str, huffmanCodeTable);
+        return zipArr(bytes, huffmanCodeTable);
 
     }
 
     // 解压
-    private static String unZip(byte[] zipArr, Map<Character, String> huffmanCodeTable) {
+    public static byte[] unZip(byte[] zipArr, Map<Byte, String> huffmanCodeTable) {
         // 反转赫夫曼编码表
-        Map<String, Character> map = new HashMap<>();
-        for (Map.Entry<Character, String> entry : huffmanCodeTable.entrySet()) {
+        Map<String, Byte> map = new HashMap<>();
+        for (Map.Entry<Byte, String> entry : huffmanCodeTable.entrySet()) {
             map.put(entry.getValue(), entry.getKey());
         }
-        StringBuilder sb = new StringBuilder();
         String s = "";
+        List<Byte> list = new ArrayList<>();
         for (char c : byteArrToString(zipArr).toCharArray()) {
             s += c;
             if (map.containsKey(s)) {
-                sb.append(map.get(s));
+                list.add(map.get(s));
                 s = "";
             }
         }
-        return sb.toString();
+        byte[] bytes = new byte[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            bytes[i] = list.get(i);
+        }
+        return bytes;
     }
 
     // 数组转换成字符串
@@ -76,11 +81,11 @@ public class HuffmanCode {
         }
     }
 
-    // 将字符串压缩为byte数组
-    public static byte[] zipArr(String str, Map<Character, String> huffmanCodeTable) {
+    // 将字节数组压缩为byte数组
+    public static byte[] zipArr(byte[] bytes, Map<Byte, String> huffmanCodeTable) {
         StringBuilder sb = new StringBuilder();
-        for (char c : str.toCharArray()) {
-            sb.append(huffmanCodeTable.get(c));
+        for (Byte b : bytes) {
+            sb.append(huffmanCodeTable.get(b));
         }
         String zipStr = sb.toString();
         // 切割压缩字符串
@@ -111,7 +116,7 @@ public class HuffmanCode {
     }
 
     // 赫夫曼编码表
-    private static Map<Character, String> huffmanCodeTable = new HashMap<>();
+    public static Map<Byte, String> huffmanCodeTable = new HashMap<>();
 
     // 根据赫夫曼树生成赫夫曼编码表
     public static void createHuffmanCodeTable(HuffmanCodeNode huffmanCodeNode, String code, StringBuilder stringBuilder1) {
@@ -128,22 +133,22 @@ public class HuffmanCode {
             // 右递归
             createHuffmanCodeTable(huffmanCodeNode.getRight(), "1", stringBuilder2);
         } else {
-            huffmanCodeTable.put((char) huffmanCodeNode.getData(), stringBuilder2.toString());
+            huffmanCodeTable.put((Byte) huffmanCodeNode.getData(), stringBuilder2.toString());
         }
     }
 
     // 字符串切割为char数组，转换成list集合
-    public static List<HuffmanCodeNode> transferHuffmanList(String str) {
-        HashMap<Character, Integer> huffmanMap = new HashMap<Character, Integer>();
-        for (char c : str.toCharArray()) {
-            if (huffmanMap.containsKey(c)) {
-                huffmanMap.put(c, huffmanMap.get(c) + 1);
+    public static List<HuffmanCodeNode> transferHuffmanList(byte[] bytes) {
+        HashMap<Byte, Integer> huffmanMap = new HashMap<>();
+        for (byte b : bytes) {
+            if (huffmanMap.containsKey(b)) {
+                huffmanMap.put(b, huffmanMap.get(b) + 1);
             } else {
-                huffmanMap.put(c, 1);
+                huffmanMap.put(b, 1);
             }
         }
         List<HuffmanCodeNode> list = new ArrayList<>();
-        for (Map.Entry<Character, Integer> entry : huffmanMap.entrySet()) {
+        for (Map.Entry<Byte, Integer> entry : huffmanMap.entrySet()) {
             list.add(new HuffmanCodeNode(entry.getValue(), entry.getKey()));
         }
         return list;

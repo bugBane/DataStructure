@@ -97,7 +97,104 @@
         节点的带权路径长度：从根节点到该节点之间的路径长度与该节点权的乘积。
         树的带权路径长度：树的带权路径长度规定为所有叶子节点的带权路径长度之和，记为WPL，权值越大的节点离根节点越近的二叉树才是最优二叉树。
         WPL最小的就是赫夫曼树。
-    步骤：
+    步：骤：
         1.从小到大进行排序，将每一个数据创建为一个节点，每个节点可以看成是简单的二叉树；
         2.取出根节点权值最小的两颗二叉树，组成一颗新的二叉树，该新的二叉树根节点是前面两颗二叉树根节点权值的和；
         3.再将这颗新的二叉树，以根节点的权值大小再次排序，不断重复1-2-3的步骤，直到数列中所有的数据被处理，就得到一颗赫夫曼树。
+
+赫夫曼编码：因为赫夫曼树是最优的权值路径树，所以可以用来压缩
+    最佳实践：文件压缩-文件解压
+    注意事项：
+        1.如果文件本身就是经过压缩处理的，那么使用赫夫曼编码在压缩效率不会有明显的变化，比如视频、ppt等
+        2.赫夫曼编码是按字节来处理的，因此可以处理所有的文件
+        3.如果一个文件中的内容，重复的内容不多，压缩效果也不会很明显
+
+二叉排序树：
+    特征：
+        左节点<父节点<右节点；
+        如果存在重复元素添加，那么相当于修改，比如hashMap的put方法，底层是 数组+红黑树(二叉排序树) key就不能重复
+    增删改查：
+        增/改：判断元素值，相等就去修改
+            小于继续判断左节点，左节点为空，添加，否则继续判断左节点的节点(递归);
+            大于继续判断右节点，右节点为空，添加，否则继续判断右节点的节点(递归);
+        查/遍历：中序遍历/判断就行
+        删：比较麻烦，重中之重！！！主要是三种情况删除：
+            1.删除节点为叶子节点：直接用父节点删除就行
+            2.删除节点只有左节点或者右节点： 2*2=4种判断
+                要判断父节点是否为空，有可能是删除根节点，那么就不用这么麻烦，直接根节点=左节点或者右节点
+                否则再判断该节点是父节点的左节点还是右节点：如果为左节点那么父左节点直接连接该节点的左节点或者右节点；如果为右节点那么父右节点直接连接该节点的左节点或者右节点
+            3.删除节点为节点树，使用替换的思路：该节点右节点的最小节点值替换该节点，删除最小节点
+        public void del(int value) {
+            // root为空不删除
+            if (root == null) {
+                return;
+            }
+            // 二叉排序树没有该节点，不删除
+            BinarySortNode binarySortNode = search(value);
+            if (binarySortNode == null) {
+                return;
+            }
+            // 只有根节点
+            if (root.getLeft() == null && root.getRight() == null) {
+                root = null;
+                return;
+            }
+            // 查找父节点
+            BinarySortNode parent = searchParent(value);
+            // 删除叶子节点 找到叶子节点就可以直接删除
+            if (binarySortNode.getLeft() == null && binarySortNode.getRight() == null) {
+                if (parent.getLeft() != null && parent.getLeft().getValue() == value) {
+                    parent.setLeft(null);
+                    return;
+                }
+                if (parent.getRight() != null && parent.getRight().getValue() == value) {
+                    parent.setRight(null);
+                    return;
+                }
+            }
+            // 该节点既有左节点又有右节点
+            if (binarySortNode.getLeft() != null && binarySortNode.getRight() != null) {
+                // 注意：因为不会存在该节点的右子节点下的最小值节点小于该值，所以只需要将该节点的值改为右子节点下的最小节点的值(相当于替换了)，将最小节点的值删除，此时还是二叉排序树
+                int min = delRightTreeMin(binarySortNode.getRight());
+                binarySortNode.setValue(min);
+                return;
+            }
+            // 此时只剩下一种情况：左节点不为空或者右节点不为空  删除子节点 节点只有一个子节点
+            // 如果只有左子节点
+            if (binarySortNode.getLeft() != null) {
+                // 如果根节点就挂了一个左节点，此时删除根节点的时候根节点父类为空会报空指针异常
+                if (parent != null) {
+                    // 将父节点的左节点直接连接该节点的左节点
+                    if (parent.getLeft() != null && parent.getLeft().getValue() == value) {
+                        parent.setLeft(binarySortNode.getLeft());
+                        return;
+                    }
+                    // 将父节点的右节点直接连接该节点的左节点
+                    // 注意：不会存在该节点的左子节点下的最大值节点大于该值，因为是添加的时候就进行判断了，所以可以直接连接
+                    if (parent.getRight() != null && parent.getRight().getValue() == value) {
+                        parent.setRight(binarySortNode.getLeft());
+                        return;
+                    }
+                } else {
+                    root = binarySortNode.getLeft();
+                }
+                // 只有右节点
+            } else {
+                // 如果根节点就挂了一个右节点，此时删除根节点的时候根节点父类为空会报空指针异常
+                if (parent != null) {
+                    // 将父节点的左节点直接连接该节点的右节点
+                    // 注意：不会存在该节点的右子节点下的最小值节点小于该值，因为是添加的时候就进行判断了，所以可以直接连接
+                    if (parent.getLeft() != null && parent.getLeft().getValue() == value) {
+                        parent.setLeft(binarySortNode.getRight());
+                        return;
+                    }
+                    // 将父节点的右节点直接连接该节点的右节点
+                    if (parent.getRight() != null && parent.getRight().getValue() == value) {
+                        parent.setRight(binarySortNode.getRight());
+                        return;
+                    }
+                } else {
+                    root = binarySortNode.getRight();
+                }
+            }
+        }
