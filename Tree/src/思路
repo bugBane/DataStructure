@@ -124,77 +124,98 @@
                 要判断父节点是否为空，有可能是删除根节点，那么就不用这么麻烦，直接根节点=左节点或者右节点
                 否则再判断该节点是父节点的左节点还是右节点：如果为左节点那么父左节点直接连接该节点的左节点或者右节点；如果为右节点那么父右节点直接连接该节点的左节点或者右节点
             3.删除节点为节点树，使用替换的思路：该节点右节点的最小节点值替换该节点，删除最小节点
-        public void del(int value) {
-            // root为空不删除
-            if (root == null) {
+            (详细代码看平衡二叉树)
+
+平衡二叉树：难点在于平衡(左旋、右旋、双旋)
+    特征：二叉排序树的一种，全名平衡二叉搜索树
+        左节点<父节点<右节点；
+        如果存在重复元素添加，那么相当于修改，比如hashMap的put方法，底层是 数组+红黑树(二叉排序树) key就不能重复
+        树的高度与叶子节点的最小高度不超过1(最大高度与最小高度不超过1)
+    增删改查：与二叉排序树类似，只是增删之后会有平衡树的操作
+    平衡：左旋、右旋、双旋
+        左旋：右子树高度比左子树高
+        右旋：左子树高度比右子树高
+        双旋：右子树高度比左子树高，但是右子树的左子树高度比右子树的右子树高度，需要先右旋调整到外边再左旋
+        // 平衡二叉树
+        public void balanceALVTree() {
+            // (要左旋或者右旋前提是要左旋的右节点是平衡的或者要右旋的左节点是平衡的，如果不平衡那么旋转之后还是不平衡)
+            if (getRightHeight() - getLeftHeight() > 1) {
+                // 左旋时如果右节点不平衡(右节点的左节点高于右节点的左节点，先右旋右节点保持右节点平衡)
+                if (this.right != null && this.right.getLeftHeight() > this.right.getRightHeight()) {
+                    this.right.dextroRotation();
+                }
+                // 左旋
+                levoRotation();
+                // 添加是一个一个的添加，此时处理完了之后就证明这一个添加完毕了
                 return;
             }
-            // 二叉排序树没有该节点，不删除
-            BinarySortNode binarySortNode = search(value);
-            if (binarySortNode == null) {
-                return;
-            }
-            // 只有根节点
-            if (root.getLeft() == null && root.getRight() == null) {
-                root = null;
-                return;
-            }
-            // 查找父节点
-            BinarySortNode parent = searchParent(value);
-            // 删除叶子节点 找到叶子节点就可以直接删除
-            if (binarySortNode.getLeft() == null && binarySortNode.getRight() == null) {
-                if (parent.getLeft() != null && parent.getLeft().getValue() == value) {
-                    parent.setLeft(null);
-                    return;
+            if (getLeftHeight() - getRightHeight() > 1) {
+                // 右旋时如果左节点不平衡(左节点的右节点高于左节点的左节点，先左旋左节点保持左节点平衡)
+                if (this.left != null && this.left.getRightHeight() > this.left.getLeftHeight()) {
+                    this.left.levoRotation();
                 }
-                if (parent.getRight() != null && parent.getRight().getValue() == value) {
-                    parent.setRight(null);
-                    return;
-                }
-            }
-            // 该节点既有左节点又有右节点
-            if (binarySortNode.getLeft() != null && binarySortNode.getRight() != null) {
-                // 注意：因为不会存在该节点的右子节点下的最小值节点小于该值，所以只需要将该节点的值改为右子节点下的最小节点的值(相当于替换了)，将最小节点的值删除，此时还是二叉排序树
-                int min = delRightTreeMin(binarySortNode.getRight());
-                binarySortNode.setValue(min);
-                return;
-            }
-            // 此时只剩下一种情况：左节点不为空或者右节点不为空  删除子节点 节点只有一个子节点
-            // 如果只有左子节点
-            if (binarySortNode.getLeft() != null) {
-                // 如果根节点就挂了一个左节点，此时删除根节点的时候根节点父类为空会报空指针异常
-                if (parent != null) {
-                    // 将父节点的左节点直接连接该节点的左节点
-                    if (parent.getLeft() != null && parent.getLeft().getValue() == value) {
-                        parent.setLeft(binarySortNode.getLeft());
-                        return;
-                    }
-                    // 将父节点的右节点直接连接该节点的左节点
-                    // 注意：不会存在该节点的左子节点下的最大值节点大于该值，因为是添加的时候就进行判断了，所以可以直接连接
-                    if (parent.getRight() != null && parent.getRight().getValue() == value) {
-                        parent.setRight(binarySortNode.getLeft());
-                        return;
-                    }
-                } else {
-                    root = binarySortNode.getLeft();
-                }
-                // 只有右节点
-            } else {
-                // 如果根节点就挂了一个右节点，此时删除根节点的时候根节点父类为空会报空指针异常
-                if (parent != null) {
-                    // 将父节点的左节点直接连接该节点的右节点
-                    // 注意：不会存在该节点的右子节点下的最小值节点小于该值，因为是添加的时候就进行判断了，所以可以直接连接
-                    if (parent.getLeft() != null && parent.getLeft().getValue() == value) {
-                        parent.setLeft(binarySortNode.getRight());
-                        return;
-                    }
-                    // 将父节点的右节点直接连接该节点的右节点
-                    if (parent.getRight() != null && parent.getRight().getValue() == value) {
-                        parent.setRight(binarySortNode.getRight());
-                        return;
-                    }
-                } else {
-                    root = binarySortNode.getRight();
-                }
+                // 右旋
+                dextroRotation();
             }
         }
+        // 左旋
+        public void levoRotation() {
+            // 定义一个中间节点
+            ALVNode temp = new ALVNode(this.value);
+            // 中间节点的左节点为原节点的左节点
+            temp.left = this.left;
+            // 中间节点的右节点为原节点的右节点的左节点
+            temp.right = this.right.left;
+            // 此时已经构建好了一个temp节点，只需要将原节点左移(只是修改了值，原节点的结构没有发生变化，需要将原结构重新调整)
+            this.value = this.right.value;
+            // 新左移节点连接左节点(使用原节点)
+            this.left = temp;
+            // 新左移点节点连接右节点(使用原节点)
+            this.right = this.right.right;
+            // 执行完之后就相当于将原节点重新构建成一个新的左移节点
+            // 原节点左移过程中只是修改值，所以左移之前的原节点的右节点还存在，但是没有任何节点指向它，会被gc回收(虽然它连接其它节点但是可达性分析并不能找到)
+        }
+        // 右旋
+        public void dextroRotation() {
+            // 定义一个中间节点
+            ALVNode temp = new ALVNode(this.value);
+            // 中间节点的右节点为原节点的右节点
+            temp.right = this.right;
+            // 中间节点的左节点为原节点的左节点的右节点
+            temp.left = this.left.right;
+            // 此时已经构建好了一个temp节点，只需要将原节点右移(只是修改了值，原节点的结构没有发生变化，需要将原结构重新调整)
+            this.value = this.left.value;
+            // 新右移节点连接左节点
+            this.right = temp;
+            // 新右移点节点连接右节点(原节点结构没有发生变化)
+            this.left = this.left.left;
+            // 执行完之后就相当于将原节点重新构建成一个新的左移节点
+            // 原节点右移过程中只是修改值，所以右移之前的原节点的左节点还存在，但是没有任何节点指向它，会被gc回收(虽然它连接其它节点但是可达性分析并不能找到)
+        }
+
+二叉树的问题分析：二叉树操作效率高但是也会存在问题
+    二叉树需要加载到内存，如果二叉树的节点少，那么不会有什么问题，如果二叉树节点很多那么就可能带来如下问题：
+    1.构建二叉树时，需要多次进行io操作(海量数据存在数据库或者文件中)，节点海量，构建二叉树时速度有影响。
+    2.节点海量会造成二叉树的高度很高，降低操作速度。
+多叉树：
+    概念：在二叉树中，每个节点有数据项，最多有两个子节点。如果允许每个节点有更多的数据项和更多的子节点，就是多叉树。多叉树通过减少树的高度，能对二叉树进行优化。
+    常见：B树、2-3树、2-3-4树就是多叉树
+B树：就是多叉树，通过重新组织节点降低树的高度，并且减少i/o读写次数来提升效率。
+    文件系统及数据库系统的设计者利用了磁盘预读原理，将一个节点的大小设为等于一个页(页得大小通常为4k)，这样每个节点只需要一次i/o就可以完全载入。
+    将树的度M设置为1024，在600亿个元素中最多只需要4次I/O操作就可以读取到想要的元素，B树(B+)广泛应用于文件存储系统以及数据库系统中
+2-3树：
+    特点：
+        2-3树的所有叶子节点都在同一层(只要是B树都满足这个结构)
+        有两个子节点的节点叫二节点，二节点要么没有子节点，要么有两个子节点
+        有三个子节点的节点叫三节点，三节点要么没有子节点，要么有三个子节点
+        2-3节点是由二节点和三节点构成的树
+    插入规则：
+        添加一个数据时如果不能满足上边的特点，就需要拆，先向上拆，如果上层满则拆本层，拆后仍然需要满足上边特点。
+2-3-4树：和2-3特点一样，就是多了一个四节点
+B+树：B+树是B树的变体，也是一种多路搜索树。更适合文件索引系统，各有各的应用场景，不能说谁好谁坏(切记不能非好即坏，矛盾论和实践论相结合)
+    B+树的搜索与B树基本相同，区别是B+树只有到达叶子节点才能命中(B树非叶子节点命中)，其性能也等价于在关键字全集做一次二分查找
+    所有关键字都出现在叶子节点的链表中(数据只能在叶子节点，也叫稠密索引)，且链表中的关键字恰好是有序的。
+    不可能在非叶子节点命中
+    非叶子节点相当于叶子节点的索引(稀疏索引)，叶子节点相当于是存储(关键字)数据的数据层
+B*树：B*树是B+树的变体，在B+树的非根和非叶子节点再增加指向兄弟的指针。
+    B*树规定了非叶子节点关键字个数至少为(2/3)*M，即块的最低使用率为2/3，而B+树的块的最低使用率为1/2。块使用率更高
